@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 3 · Your Compose file, through Kubernetes eyes</title>
+<link rel="stylesheet" href="../assets/style.css"></head><body>
+<p class="crumbs"><a href="../index.html">Kubernetes on Incus</a> / Lesson 3</p>
+<h1>Your Compose file, through Kubernetes eyes</h1>
+<p class="meta">About 20 minutes · no cluster needed · can be done before or after <a href="0002-four-incus-vms.html">Lesson 2</a></p>
+
+<p class="win">By the end you can take one service from your homelab <code>docker-compose.yml</code> and say which Kubernetes objects it becomes, and what gets lost on the way.</p>
+
+<h2>You already know half of this</h2>
+<p>You declare services in Compose and let Docker make reality match. Kubernetes works the same way at a larger scale: you declare objects, and the cluster keeps working until reality matches. The new part is the vocabulary, so we’ll borrow the translation Kubernetes itself documents.</p>
+<p>The Kubernetes docs describe <strong>Kompose</strong>, a conversion tool from Compose to Kubernetes (<a href="https://kubernetes.io/docs/tools/kompose/">Translate a Docker Compose File to Kubernetes Resources</a>). Its default output is a set of Deployments and Services as YAML files (<a href="https://v1-33.docs.kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/">same guide, v1.33</a>). You’ll use it as a <em>dictionary</em>, not as a migration tool.</p>
+
+<h2>The translation table</h2>
+<table>
+<tr><th>In Compose</th><th>Kompose produces</th><th>Evidence</th></tr>
+<tr><td>A service (image, environment)</td><td>A <code>…-deployment.yaml</code></td><td><a href="https://kubernetes.io/docs/tools/kompose/user-guide/">user guide</a>’s sample output</td></tr>
+<tr><td><code>ports:</code></td><td>A Service file, e.g. <code>web-tcp-service.yaml</code></td><td><a href="https://www.kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/">task page</a></td></tr>
+<tr><td><code>volumes:</code></td><td>A <code>…-persistentvolumeclaim.yaml</code></td><td>sample output in the <a href="https://kubernetes.io/docs/tools/kompose/user-guide/">user guide</a></td></tr>
+<tr><td><code>build:</code></td><td>Nothing: a warning, “Unsupported key build - ignoring”</td><td><a href="https://kubernetes.io/docs/tools/kompose/user-guide/">user guide</a></td></tr>
+</table>
+<p>The last row is the interesting one. A cluster pulls images; it doesn’t run your <code>build:</code> step. So in Kubernetes, building and publishing an image becomes a separate job, which is exactly the sort of thing platform and CI work is about. We’ll return to it.</p>
+<div class="aside">What’s not in this table: <code>depends_on</code>, restart policies, networks, healthchecks. I haven’t verified how Kompose or Kubernetes handles them, so we’ll learn each from the docs when we reach it rather than guess now.</div>
+
+<h2>Try it on your own file</h2>
+<p>Pick your <em>simplest</em> homelab service. Install Kompose using the <a href="https://kubernetes.io/docs/tools/kompose/">official guide</a> (check the releases page for the current version, since the guide’s example URL shows v1.34.0). Then, in a scratch directory:</p>
+<pre><code>cp ~/path/to/docker-compose.yml .
+kompose convert
+ls</code></pre>
+<p>Converting needs no cluster. Applying the output with <code>kubectl apply</code> does, and you shouldn’t do that yet. Open the generated Deployment and Service files and find: where your image went, where your port went, and what you wrote in Compose that has no visible counterpart.</p>
+<p>Paste your <code>ls</code> output below.</p>
+<div class="check" data-must='["deployment\\.yaml","(service|svc)\\.yaml"]' data-hint="You need at least one Deployment file and one Service file. If you got none, check that your service defines ports.">
+<textarea aria-label="ls output after kompose convert" placeholder="Paste ls output here"></textarea><br>
+<button>Check</button><p class="fb"></p></div>
+
+<h2>Retrieval practice</h2>
+<div class="quiz"><p class="q">A Compose service with a published port becomes which pair?</p>
+<ol><li>DaemonSet plus Volume</li><li>Ingress plus ConfigMap</li><li data-correct>Deployment plus Service</li><li>StatefulSet plus Secret</li></ol>
+<p class="why">Kompose’s default output is Deployments and Services.</p></div>
+
+<div class="quiz"><p class="q">What does Kompose do with a Compose <code>build:</code> key?</p>
+<ol><li>It builds the image first</li><li>It pushes the image upstream</li><li>It emits a Dockerfile instead</li><li data-correct>It ignores the key, warning</li></ol>
+<p class="why">It warns “Unsupported key build - ignoring”. Kubernetes needs a ready-made image it can pull.</p></div>
+
+<div class="quiz"><p class="q">Compose <code>volumes:</code> became which object in Kompose’s sample?</p>
+<ol><li>A ConfigMap</li><li data-correct>A PersistentVolumeClaim</li><li>A DaemonSet</li><li>An Ingress</li></ol>
+<p class="why">The sample output included a <code>…-persistentvolumeclaim.yaml</code> file for the database’s volume.</p></div>
+
+<div class="publish"><strong>Publish it</strong>
+<p><em>Blog angle:</em> “What my homelab Compose file looks like to Kubernetes.” Show one service side by side with its generated files, and list what didn’t carry over. A post that admits its gaps reads as honest, which helps in interviews.<br>
+<em>Say it aloud:</em> “A Compose service roughly maps to a Deployment plus a Service; volumes become claims; <code>build</code> doesn’t carry over, so images need a registry.”</p></div>
+
+<h2>Read next</h2>
+<p><strong>Primary source:</strong> <a href="https://kubernetes.io/docs/tools/kompose/">Kompose on kubernetes.io</a>. Next lesson: install k3s on <code>k3s-server</code> and join your agents. Once that’s done, we’ll apply a Deployment you understand.</p>
+<p class="foot">Not sure which service to pick, or what a field means in the generated YAML? Ask your teacher (Claude). Paste the file and ask.</p>
+<nav class="pager" id="pager"></nav>
+<script src="../assets/lessons.js"></script><script src="../assets/course.js"></script>
+</body></html>
