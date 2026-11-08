@@ -1,19 +1,22 @@
 # Mission: Kubernetes
 
 ## Why
-Learn Kubernetes hands-on by building and operating a realistic multi-node cluster on a single 16 GB Intel laptop running Debian, using Incus VMs as stand-ins for separate servers. *(Provisional: the underlying goal — job, certification, homelab — has not been stated yet. Confirm with the user.)*
+Move from a software engineering role into SRE or platform engineering by building, and publicly documenting, a Kubernetes-based upgrade of a Docker Compose homelab. The public write-ups become evidence in job applications and interviews.
 
 ## Success looks like
-- Four Incus VMs running a healthy k3s cluster (1 server, 3 agents), built from scratch
-- Deploy an app with a Deployment and a Service, and reach it from the laptop
-- Diagnose a broken Pod using `kubectl`
-- Rebuild the whole cluster from memory
+- A healthy 4-node k3s cluster (1 server, 3 agents) on Incus VMs, built from scratch
+- Real homelab services migrated from Compose to the cluster and running reliably
+- One published write-up per milestone (blog now, YouTube possibly later)
+- Explain aloud, interview-style: control-plane components, what a Deployment and a Service do, and how to debug a failing Pod
+- Homelab services measured with simple SLIs/SLOs and alerts *(inferred from the SRE goal; strike if unwanted)*
 
 ## Constraints
 - 16 GB RAM, Intel x86_64, Debian host, no cloud account, no spare servers
+- Undecided between SRE and platform engineering, so early lessons serve both
 - Course is a static HTML site on GitHub Pages; new lessons arrive as git patches
-- Short lessons with retrieval practice and a tangible win each time
+- Short lessons with retrieval practice, a tangible win, and a "publish it" prompt each time
 
 ## Out of scope
 - Managed cloud Kubernetes (EKS/GKE/AKS)
 - ARM-specific setups
+- Re-teaching container and Compose basics (already known)

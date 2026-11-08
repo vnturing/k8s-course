@@ -50,6 +50,9 @@ incus exec k3s-server -- free -m</code></pre>
 <ol><li data-correct>Every node needs a unique hostname</li><li>Every node needs a shared hostname</li><li>Every node needs a numeric hostname</li><li>Every node needs a fully-qualified hostname</li></ol>
 <p class="why">k3s requires unique hostnames; the VM name becomes the node’s hostname.</p></div>
 
+<div class="publish"><strong>Publish it</strong>
+<p><em>Blog angle:</em> “A four-node Kubernetes lab on one laptop with Incus.” Include your launch commands, the memory budget, and why you used VMs instead of containers.<br>
+<em>Say it aloud:</em> “I used VMs so every node has its own kernel, hostname and IP, which makes joining nodes behave like real servers.”</p></div>
 <h2>Read next</h2>
 <p><strong>Primary source:</strong> <a href="https://linuxcontainers.org/incus/docs/main/tutorial/first_steps/">Incus: First steps</a>. Skim the part on limits and the VM root disk, since you’ll tune both. Next lesson: installing k3s on <code>k3s-server</code> and reading its node token.</p>
 <p class="foot">Hit an error? Paste it to your teacher (Claude) along with the command you ran. Follow-up questions are the point.</p>

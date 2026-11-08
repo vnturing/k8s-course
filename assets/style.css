@@ -33,3 +33,6 @@ svg .box{fill:none;stroke:var(--mute)}svg .hot{stroke:var(--accent);stroke-width
 .pager{display:flex;justify-content:space-between;gap:1rem;margin-top:3rem;border-top:1px solid var(--rule);padding-top:1rem}
 .foot{margin-top:2rem}
 @media print{body{max-width:none;font-size:10.5pt}.quiz,.check,.pager,.crumbs{display:none}a{color:inherit}}
+.publish{border:1px dashed var(--rule);border-radius:4px;padding:.8rem 1rem;margin:1.5rem 0;font-size:.95rem}
+.publish strong:first-child{font:600 .75rem ui-sans-serif,system-ui,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);display:block;margin-bottom:.3rem}
+@media print{.publish{display:none}}

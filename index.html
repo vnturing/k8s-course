@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="assets/style.css"></head><body>
 <h1>Kubernetes on Incus</h1>
 <p class="meta">A crash course for one Intel laptop, 16&nbsp;GB of RAM, and four virtual machines.</p>
-<p>You don’t need a rack of servers. You’ll launch four Debian VMs with <a href="https://linuxcontainers.org/incus/">Incus</a>, treat them as separate machines, and build a real multi-node <a href="https://docs.k3s.io/">k3s</a> cluster. Each lesson is short, ends with a small win, and asks you to recall rather than reread.</p>
+<p>You don’t need a rack of servers. You’ll launch four Debian VMs with <a href="https://linuxcontainers.org/incus/">Incus</a>, treat them as separate machines, and build a real multi-node <a href="https://docs.k3s.io/">k3s</a> cluster. Each lesson is short, ends with a small win, asks you to recall rather than reread, and gives you something worth publishing.</p>
 
 <h2>Lessons</h2>
 <ol id="lesson-list"></ol>
@@ -13,7 +13,7 @@
 <ul><li><a href="reference/incus-cheatsheet.html">Incus cheat sheet</a> — the commands from the lessons, one printable page.</li></ul>
 
 <h2>Planned</h2>
-<p>Not yet written, and subject to change as you learn: install the k3s server and read its token · join the three agents · use <code>kubectl</code> from your laptop · Pods · Deployments · Services · configuration and secrets · storage · debugging a broken Pod.</p>
+<p>Not yet written, and subject to change as you learn: install the k3s server and join the agents · <code>kubectl</code> from your laptop · Pods · Deployments and rollouts · Services · configuration and secrets · storage (your Compose volumes) · migrate one real homelab service · observability and SLOs · GitOps · write up an incident.</p>
 
 <p class="foot">Mission, sources and learning records live in the repository root: <code>MISSION.md</code>, <code>RESOURCES.md</code>, <code>learning-records/</code>.</p>
 <script src="assets/lessons.js"></script><script src="assets/course.js"></script>
