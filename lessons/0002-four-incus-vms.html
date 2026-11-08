@@ -26,7 +26,8 @@
   <h2>Step 0 · Preflight</h2>
   <pre><code>incus --version
 ls -l /dev/kvm            # VMs need hardware virtualisation
-incus admin init --minimal   # only if you never initialised Incus</code></pre>
+incus admin init --minimal   # only if you never initialised Incus
+systemctl is-active docker   # if “active”, read the troubleshooting section below first</code></pre>
   <p>The <code>--minimal</code> flag applies a basic automatic configuration (<a
       href="https://linuxcontainers.org/incus/docs/main/tutorial/first_steps/">Incus: first steps</a>). If you get a
     permission error, your user probably isn’t in the <code>incus-admin</code> group; check your Incus install notes.
@@ -53,10 +54,38 @@ incus exec k3s-server -- free -m</code></pre>
   <p>VMs need a minute to boot before an IPv4 address appears. Re-run <code>incus list</code> until all four have one.
     <code>free -m</code> inside the server should show roughly 3&nbsp;GiB, not your laptop’s 16 (the Incus tutorial runs
     this same comparison for containers: <a
-      href="https://linuxcontainers.org/incus/docs/main/tutorial/first_steps/">first steps</a>).</p>
-  <p class="aside">Optional: from an agent, <code>incus exec k3s-agent1 -- ping -c1 &lt;server-ip&gt;</code>. If
-    <code>ping</code> is missing, install it with <code>apt-get install -y iputils-ping</code> inside the VM. This
-    confirms the VMs can reach each other, which k3s will rely on.</p>
+      href="https://linuxcontainers.org/incus/docs/main/tutorial/first_steps/">first steps</a>).
+  </p>
+  <p class="aside">Optional: find the server’s address with <code>incus list k3s-server -c n4</code>, then
+    from an agent run <code>incus exec k3s-agent1 -- ping -c3 &lt;server-ip&gt;</code>. Ping the
+    <em>server</em>, not another agent, so you know which address you tested. If <code>ping</code> is
+    missing, install it with <code>apt-get install -y iputils-ping</code> inside the VM. This confirms
+    the VMs can reach each other, which k3s will rely on.
+  </p>
+
+  <h2>If the VMs can’t reach each other</h2>
+  <p>A failed ping between VMs, while pinging the gateway (the bridge’s own address, e.g.
+    <code>10.225.16.1</code>) works, points at the host’s firewall. <a
+      href="https://linuxcontainers.org/incus/docs/main/howto/network_bridge_firewalld/">Incus’s firewall
+      guide</a> says running Incus and Docker on the same host can cause connectivity issues, commonly
+    because Docker sets the FORWARD policy to drop. Check:
+  </p>
+  <pre><code>systemctl is-active docker
+sudo iptables -S FORWARD | head -3   # look for -P FORWARD DROP
+lsmod | grep br_netfilter</code></pre>
+  <p>To <em>test</em> the theory (these rules vanish on reboot), allow traffic on the Incus bridge,
+    replacing <code>incusbr0</code> with your bridge name from <code>incus network list</code>:</p>
+  <pre><code>sudo iptables -I DOCKER-USER -i incusbr0 -j ACCEPT
+sudo iptables -I DOCKER-USER -o incusbr0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT</code></pre>
+  <p>If that fixes it, pick a lasting fix. The Incus docs’ easiest is to remove Docker from the host and
+    run it inside a VM if you need it, then reboot. If Docker must stay, they point to Docker’s
+    <code>ip-forward-no-drop</code> option. Also confirm no old Kubernetes install is running on the host
+    (<code>systemctl is-active k3s</code>); a leftover one competes for memory and adds firewall rules.
+  </p>
+  <div class="publish"><strong>Worth writing up</strong>
+    <p>This failure is a good blog section on its own: symptom, the gateway-vs-VM test that narrowed it,
+      the firewall cause, the fix. Debugging narratives are what interviewers ask about.</p>
+  </div>
 
   <h2>Prove it</h2>
   <p>Paste your <code>incus list</code> output. The check looks for the four names and four VMs.</p>

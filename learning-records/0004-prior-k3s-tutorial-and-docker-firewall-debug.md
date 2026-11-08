@@ -1,0 +1,3 @@
+# Has done a k3s tutorial; debugged Docker/Incus firewall conflict
+
+The user had previously run a single-node k3s on this laptop for a tutorial and deployed a simple service, which we found when firewall rules mentioned kube-router. They ran the diagnostics, applied the temporary iptables rules, and uninstalled the old k3s. Kubernetes depth beyond that is untested; Lesson 1 and 3 retrieval results will show more. They also worked through a network-debugging sequence (gateway vs VM, FORWARD policy), which is good evidence for a write-up.
