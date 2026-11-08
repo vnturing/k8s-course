@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incus cheat sheet</title>
+<link rel="stylesheet" href="../assets/style.css"></head><body>
+<p class="crumbs"><a href="../index.html">Kubernetes on Incus</a> / Reference</p>
+<h1>Incus cheat sheet</h1>
+<p class="meta">Introduced in <a href="../lessons/0002-four-incus-vms.html">Lesson 2</a>. Prints on one page.</p>
+<table>
+<tr><th>Task</th><th>Command</th></tr>
+<tr><td>First-time setup</td><td><code>incus admin init --minimal</code></td></tr>
+<tr><td>Launch a VM with limits</td><td><code>incus launch images:debian/12 NAME --vm -c limits.cpu=2 -c limits.memory=2GiB</code></td></tr>
+<tr><td>Bigger root disk at launch</td><td><code>… --vm -d root,size=20GiB</code></td></tr>
+<tr><td>List instances</td><td><code>incus list</code></td></tr>
+<tr><td>Details of one instance</td><td><code>incus info NAME</code></td></tr>
+<tr><td>Run a command inside</td><td><code>incus exec NAME -- CMD</code></td></tr>
+<tr><td>Change a limit later</td><td><code>incus config set NAME limits.memory=3GiB</code></td></tr>
+<tr><td>Show config</td><td><code>incus config show NAME</code></td></tr>
+<tr><td>Restart</td><td><code>incus restart NAME</code></td></tr>
+</table>
+<p class="foot">Sources: <a href="https://linuxcontainers.org/incus/docs/main/tutorial/first_steps/">Incus first steps</a>, <a href="https://linuxcontainers.org/incus/docs/main/howto/instances_create/">create instances</a>.</p>
+</body></html>

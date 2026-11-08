@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 1 · The shape of the cluster</title>
+<link rel="stylesheet" href="../assets/style.css"></head><body>
+<p class="crumbs"><a href="../index.html">Kubernetes on Incus</a> / Lesson 1</p>
+<h1>The shape of the cluster</h1>
+<p class="meta">About 10 minutes · no commands yet · prepares <a href="0002-four-incus-vms.html">Lesson 2</a></p>
+
+<p class="win">By the end you can say what runs on which of your four VMs, and why k3s is a good fit for a 16&nbsp;GB Intel laptop.</p>
+
+<h2>One idea: control plane and workers</h2>
+<p>A Kubernetes cluster is a <strong>control plane</strong> plus a set of worker machines called <strong>nodes</strong>. The nodes host the Pods that make up your application; the control plane manages the nodes and the Pods (<a href="https://kubernetes.io/docs/concepts/architecture/">Kubernetes: Cluster Architecture</a>).</p>
+
+<figure>
+<svg viewBox="0 0 600 230" role="img" aria-label="One server VM with control plane components, three agent VMs with kubelet and kube-proxy" width="100%">
+  <rect class="box hot" x="10" y="10" width="580" height="78" rx="4"/>
+  <text x="22" y="30" font-weight="bold">k3s-server (VM 1) — control plane</text>
+  <text x="22" y="56">kube-apiserver</text><text x="150" y="56">etcd (state)</text><text x="260" y="56">kube-scheduler</text><text x="390" y="56">controller-manager</text>
+  <text class="dim" x="22" y="76">k3s bundles these into one process</text>
+  <g>
+    <rect class="box" x="10" y="130" width="185" height="80" rx="4"/><text x="22" y="150" font-weight="bold">k3s-agent1</text><text x="22" y="176">kubelet</text><text x="22" y="194">kube-proxy</text>
+    <rect class="box" x="208" y="130" width="185" height="80" rx="4"/><text x="220" y="150" font-weight="bold">k3s-agent2</text><text x="220" y="176">kubelet</text><text x="220" y="194">kube-proxy</text>
+    <rect class="box" x="406" y="130" width="185" height="80" rx="4"/><text x="418" y="150" font-weight="bold">k3s-agent3</text><text x="418" y="176">kubelet</text><text x="418" y="194">kube-proxy</text>
+  </g>
+  <path class="box" d="M102 130V88M300 130V88M498 130V88" stroke-dasharray="4 3"/>
+  <text class="dim" x="310" y="112">agents call the API server on :6443</text>
+</svg>
+<figcaption>The cluster you’ll build. Pods will run on the agents.</figcaption></figure>
+
+<p>Each piece has one job. The API server is the front end of the control plane (<a href="https://kubernetes.io/docs/concepts/overview/components/">components</a>). etcd is the store for all cluster data, and the scheduler picks a node for each new Pod (<a href="https://kubernetes.io/docs/concepts/architecture/">architecture</a>). On every node, the kubelet keeps the Pod’s containers running and kube-proxy implements part of the Service concept (<a href="https://kubernetes.io/docs/concepts/overview/components/">components</a>).</p>
+
+<div class="aside">Real clusters vary. In small development clusters, control-plane components and user workloads can share nodes; larger ones separate them (<a href="https://kubernetes.io/docs/concepts/architecture/">architecture</a>). A single k3s server is itself a complete cluster that can host Pods (<a href="https://docs.k3s.io/quick-start">k3s quick start</a>). We use separate agents anyway, because the join flow is the part worth practising.</div>
+
+<h2>Why k3s, and why on VMs</h2>
+<p>You mentioned k3s is “best on arm”. It is popular there, but it is not limited to it: the docs list x86_64 first among supported architectures (<a href="https://docs.k3s.io/installation/requirements">k3s requirements</a>). Your Intel laptop is fully supported.</p>
+<p>The choice here is a teaching one. With one Incus VM per node, each node is a genuine separate machine with its own kernel, hostname and IP. Joining an agent to a server over the network is the same flow you would use with physical servers. That is the experience a single-machine cluster hides.</p>
+
+<h2>The memory budget</h2>
+<table>
+<tr><th>Role</th><th>k3s minimum (docs)</th><th>Our allocation</th></tr>
+<tr><td>Server</td><td>2 cores, 2&nbsp;GB</td><td>2 vCPU, 3&nbsp;GiB</td></tr>
+<tr><td>Agent ×3</td><td>1 core, 512&nbsp;MB each</td><td>2 vCPU, 2&nbsp;GiB each</td></tr>
+<tr><td colspan="2"><strong>Total VM memory</strong></td><td><strong>9&nbsp;GiB of 16</strong></td></tr>
+</table>
+<p>The minimums come from the <a href="https://docs.k3s.io/installation/requirements">k3s requirements page</a>, which notes they exclude your own workloads. The allocations are my choice: headroom for Pods, and about 7&nbsp;GiB left for Debian and your browser. You can shrink them later.</p>
+
+<h2>Retrieval practice</h2>
+<p>Answer from memory before you scroll back up. Wrong guesses are fine; they are part of the learning.</p>
+
+<div class="quiz"><p class="q">You run a kubectl command. Which component receives the request first?</p>
+<ol><li>kube-scheduler</li><li>kubelet</li><li data-correct>kube-apiserver</li><li>etcd</li></ol>
+<p class="why">The API server is the front end of the control plane. Other components, and you, talk to it.</p></div>
+
+<div class="quiz"><p class="q">Which pair runs on every worker node?</p>
+<ol><li data-correct>kubelet + kube-proxy</li><li>etcd + scheduler</li><li>apiserver + etcd</li><li>scheduler + kubelet</li></ol>
+<p class="why">Node components run on every node. The scheduler and etcd belong to the control plane.</p></div>
+
+<div class="quiz"><p class="q">A friend claims k3s only works on ARM boards. Your verdict?</p>
+<ol><li>Right: only ARM binaries exist</li><li>Right: Intel needs full Kubernetes</li><li>Right: x86_64 builds are experimental</li><li data-correct>Wrong: k3s ships x86_64 builds</li></ol>
+<p class="why">x86_64 is a listed, supported architecture in the k3s requirements.</p></div>
+
+<h2>Read next</h2>
+<p><strong>Primary source:</strong> <a href="https://kubernetes.io/docs/concepts/overview/components/">Kubernetes Components</a> on kubernetes.io. Read the control-plane and node-component sections, then continue to <a href="0002-four-incus-vms.html">Lesson 2</a>.</p>
+<p class="foot">Stuck, or want this explained another way? Ask your teacher (Claude) any follow-up question. That’s what it’s there for.</p>
+<nav class="pager" id="pager"></nav>
+<script src="../assets/lessons.js"></script><script src="../assets/course.js"></script>
+</body></html>
